@@ -1,0 +1,107 @@
+Ce projet suit une Architecture Hexagonale (Ports & Adaptateurs) afin d’assurer une séparation claire des préoccupations, rendant l’application modulaire, testable et maintenable.
+
+Dossier : src/main/java/com/exalt/bankaccount/
+Rôle : Racine du code source principal de l’application. Elle regroupe tous les composants essentiels du service de compte bancaire.
+
+Fichier : src/main/java/com/exalt/bankaccount/BankAccountApplication.java
+Rôle : Point d’entrée principal de l’application Spring Boot.
+Il initialise le contexte applicatif et démarre le serveur embarqué.
+
+Dossier : src/main/java/com/exalt/bankaccount/application/
+Rôle : Contient la couche application, définissant les cas d’utilisation (ports) et leurs implémentations (services).
+Cette couche orchestre la logique métier et interagit avec l’infrastructure via les ports.
+
+Dossier : src/main/java/com/exalt/bankaccount/application/port/
+Rôle : Définit les ports de l’application, des interfaces représentant les frontières du système.
+Permet de séparer la logique métier principale des préoccupations externes.
+
+Dossier : src/main/java/com/exalt/bankaccount/application/port/in/
+Rôle : Ports entrants (Driving Ports). Définit ce que l’application peut faire.
+Ils sont implémentés par les services applicatifs et appelés par les adaptateurs externes (ex. contrôleurs web).
+
+ICasUtilisationConsultationSolde.java : Port entrant pour consulter le solde d’un compte. Définit le contrat de récupération du solde actuel d’un compte bancaire.
+
+ICasUtilisationDepot.java : Port entrant pour le dépôt d’argent. Définit le contrat permettant d’ajouter des fonds à un compte.
+
+ICasUtilisationHistoriqueTransactions.java : Port entrant pour consulter l’historique des transactions d’un compte.
+
+ICasUtilisationRetrait.java : Port entrant pour le retrait d’argent. Définit le contrat permettant de retirer des fonds d’un compte bancaire.
+
+ICasUtilisationSauvegardeCompte.java : Port entrant pour sauvegarder un compte. Définit le contrat pour persister ou mettre à jour un compte bancaire.
+
+Dossier : src/main/java/com/exalt/bankaccount/application/port/out/
+Rôle : Ports sortants (Driven Ports). Définit ce dont l’application a besoin provenant des systèmes externes.
+Ils sont implémentés par les adaptateurs d’infrastructure (ex. base de données, APIs externes).
+
+IBankAccountRepositoryPort.java : Port sortant pour la persistance des comptes bancaires. Définit le contrat pour interagir avec le stockage des données.
+
+Dossier : src/main/java/com/exalt/bankaccount/application/service/
+Rôle : Contient les implémentations des ports entrants (cas d’utilisation).
+Ces services orchestrent le modèle métier pour remplir les besoins fonctionnels.
+
+CompteBancaireServiceImpl.java : Implémentation des cas d’utilisation des comptes bancaires. Contient la logique orchestrant le domaine métier et les ports sortants.
+
+Dossier : src/main/java/com/exalt/bankaccount/domain/
+Rôle : Contient les entités et règles métier centrales, indépendantes de toute infrastructure.
+C’est le cœur de l’application.
+
+CompteBancaire.java : Modèle métier pour un compte bancaire. Représente l’entité principale avec ses états et comportements (dépôt, retrait).
+
+Transaction.java : Modèle métier pour une transaction. Représente une opération financière liée à un compte.
+
+TransactionType.java : Enum des types de transactions. Décrit les types possibles (DEPOT, RETRAIT).
+
+Dossier : src/main/java/com/exalt/bankaccount/infrastructure/
+Rôle : Contient la couche infrastructure, qui gère les détails techniques liés aux systèmes externes.
+Implémente les ports sortants et interagit avec les ports entrants.
+
+Adapteurs entrants
+Dossier : src/main/java/com/exalt/bankaccount/infrastructure/adapter/in/
+
+CompteBancaireController.java : Contrôleur REST gérant les comptes bancaires. Classe exposant les fonctionnalités par des endpoints HTTP.
+
+Dossier : src/main/java/com/exalt/bankaccount/infrastructure/adapter/in/web/dto/
+
+ReponseCompte.java : DTO pour la réponse d’un compte bancaire.
+
+ReponseTransaction.java : DTO pour la réponse d’une transaction.
+
+RequeteDepot.java : DTO pour une requête de dépôt.
+
+RequeteRetrait.java : DTO pour une requête de retrait.
+
+Dossier : src/main/java/com/exalt/bankaccount/infrastructure/adapter/in/web/mapper/
+
+CompteBancaireDtoMapper.java : Mapper entre le domaine (CompteBancaire) et les DTO REST (ReponseCompte).
+
+Adapteurs sortants
+Dossier : src/main/java/com/exalt/bankaccount/infrastructure/adapter/out/persistence/
+
+BankAccountRepositoryImpl.java : Implémentation du port sortant IBankAccountRepositoryPort, utilisant JPA pour traduire les opérations métier vers la base de données.
+
+Dossier : entity/
+
+CompteBancaireEntity.java : Entité JPA pour un compte bancaire (mapping base de données).
+
+TransactionEntity.java : Entité JPA pour une transaction financière.
+
+Dossier : mapper/
+
+CompteBancairePersistenceMapper.java : Mapper entre les entités JPA et les modèles métiers.
+
+Dossier : repository/
+
+JpaBankAccountRepository.java : Interface Spring Data JPA gérant les entités CompteBancaireEntity.
+
+Dossier : src/main/java/com/exalt/bankaccount/infrastructure/config/
+Rôle : Contient les classes de configuration de l’infrastructure (ex. connexion BDD, sécurité).
+
+Dossier : src/main/resources/
+application.properties : Fichier de configuration Spring Boot (BDD, port serveur, logs...).
+
+Dossier : src/test/java/com/exalt/bankaccount/
+Rôle : Contient les tests unitaires et d’intégration de l’application.
+
+BankAccountApplicationTests.java : Vérifie que le contexte Spring Boot démarre correctement.
+
+BankAccountServiceTest.java : Teste la logique de CompteBancaireServiceImpl.
