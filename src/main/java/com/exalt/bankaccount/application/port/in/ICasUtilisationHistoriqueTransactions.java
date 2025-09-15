@@ -4,6 +4,6 @@ import com.exalt.bankaccount.domain.model.Transaction;
 
 import java.util.List;
 
-public interface ITransactionHistoryUseCase {
+public interface ICasUtilisationHistoriqueTransactions {
     List<Transaction> historiqueTransactions(Long compteId);
 }
