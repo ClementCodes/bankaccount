@@ -23,6 +23,14 @@ public class CompteBancaireEntity {
 
     private BigDecimal solde = BigDecimal.ZERO;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "compteBancaire", orphanRemoval = true)
+    // IMPORTANT : On ajoute fetch = FetchType.EAGER pour s'assurer que les
+    // transactions sont chargées avec le compte
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "compteBancaire", orphanRemoval = true, fetch = FetchType.EAGER)
     private List<TransactionEntity> transactions = new ArrayList<>();
+
+    // Méthode utilitaire pour garder la cohérence de la relation
+    public void addTransaction(TransactionEntity transaction) {
+        transactions.add(transaction);
+        transaction.setCompteBancaire(this);
+    }
 }
