@@ -1,16 +1,16 @@
 package com.exalt.bankaccount.domain.model;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
+@Data
 @Getter
-@AllArgsConstructor // C'est la ligne la plus importante : SANS accès privé !
 @EqualsAndHashCode
 public class CompteBancaire {
 
@@ -18,18 +18,27 @@ public class CompteBancaire {
     private final BigDecimal solde;
     private final List<Transaction> transactions;
 
+    // Constructeur public pour création initiale (id null, solde 0)
     public CompteBancaire() {
         this.id = null;
         this.solde = BigDecimal.ZERO;
         this.transactions = new ArrayList<>();
     }
 
+    // Constructeur que MapStruct utilisera pour reconstruire depuis l'entité persistée
+ public   CompteBancaire(Long id, BigDecimal solde, List<Transaction> transactions) {
+        this.id = id;
+        this.solde = solde;
+        this.transactions = transactions != null ? List.copyOf(transactions) : List.of();
+    }
+
     public CompteBancaire deposer(BigDecimal montant) {
         BigDecimal nouveauSolde = this.solde.add(montant);
         List<Transaction> nouvellesTransactions = new ArrayList<>(this.transactions);
         CompteBancaire comptePourTransaction = new CompteBancaire(this.id, nouveauSolde, new ArrayList<>());
-        nouvellesTransactions
-                .add(new Transaction(null, TransactionType.DEPOT, montant, LocalDateTime.now(), comptePourTransaction));
+        nouvellesTransactions.add(
+            new Transaction(null, TransactionType.DEPOT, montant, LocalDateTime.now(), comptePourTransaction)
+        );
         return new CompteBancaire(this.id, nouveauSolde, nouvellesTransactions);
     }
 
@@ -41,7 +50,8 @@ public class CompteBancaire {
         List<Transaction> nouvellesTransactions = new ArrayList<>(this.transactions);
         CompteBancaire comptePourTransaction = new CompteBancaire(this.id, nouveauSolde, new ArrayList<>());
         nouvellesTransactions.add(
-                new Transaction(null, TransactionType.RETRAIT, montant, LocalDateTime.now(), comptePourTransaction));
+            new Transaction(null, TransactionType.RETRAIT, montant, LocalDateTime.now(), comptePourTransaction)
+        );
         return new CompteBancaire(this.id, nouveauSolde, nouvellesTransactions);
     }
 }
